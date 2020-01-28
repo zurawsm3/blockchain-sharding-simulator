@@ -9,7 +9,7 @@ from shard import Shard
 class Nottaries(Shard):
     def __init__(s):
         s.communicator = Communicator()
-        Shard.__init__(s, 2, s.communicator.comm.recv(source=0, tag=222))
+        super().__init__(2, s.communicator.comm.recv(source=0, tag=222))
         s.__availability_stake = 400
 
     """DOSTEPNOSC DANYCH"""

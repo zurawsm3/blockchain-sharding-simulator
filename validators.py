@@ -12,7 +12,7 @@ import csv
 class Validator(Shard):
     def __init__(s):
         s.communicator = Communicator()
-        Shard.__init__(s, 1, s.communicator.comm.recv(source=0, tag=111))
+        super().__init__(1, s.communicator.comm.recv(source=0, tag=111))
         s.__transaction_per_block = 500               ### 127 transakcji w bloku. tyle wyszlo z danych. daje mniej bo potem beacon wysyla jeszcze innym
         s.__tran_max_pay = 100
         s.__max_stake = 400000
