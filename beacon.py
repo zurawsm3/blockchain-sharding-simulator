@@ -7,11 +7,11 @@ from copy import deepcopy
 class Beacon:
     def __init__(s):
         s.communicator = Communicator()
-        s.__interval_no_nottaries = 1000
-        s.__interval_notarries = 10000
+        s.__pool_val_ids = 1000
+        s.__pool_notaries = 10000
         s.__nodes_per_beacon = 200
         s.__vali_per_rank = 150         ###w eth mowia ze 150 wezlow wystarczy
-        s.__notarry_per_rank = 20
+        s.__notaries_per_rank = 20
         s.__beacon_peers = 3
         s.__nb_val_migrates = 1
         s.__nb_notarry_migrates = 1
@@ -24,43 +24,36 @@ class Beacon:
         return s.__peers_in_beacon
 
     def boot_beacon(s):
-        beacon_node_ids = sample(range(s.__interval_no_nottaries, 2 * s.__interval_no_nottaries), s.__nodes_per_beacon)
+        beacon_node_ids = sample(range(s.__pool_val_ids, 2 * s.__pool_val_ids), s.__nodes_per_beacon)
         for node in beacon_node_ids:
             s.__peers_in_beacon[node] = sample((set(beacon_node_ids)-{node}), s.__beacon_peers)
-        s.create_val_account_info()
-        s.create_notarry_account_info()
+        s.create_accounts_info(s.__pool_val_ids, s.__val_acc_info, s.__vali_per_rank)
+        s.create_accounts_info(s.__pool_notaries, s.__notarry_acc_info, s.__notaries_per_rank)
+
+    def send_acc_info(s):
         for rank in range(1, s.communicator.nbRanks):
             s.communicator.comm.send(s.__vali_per_rank, dest=rank, tag=111)
-            s.communicator.comm.send(s.__notarry_per_rank, dest=rank, tag=222)
-            s.communicator.comm.send([i["id"] for i in s.__val_acc_info], dest=rank, tag=1)
-            s.communicator.comm.send([i["id"] for i in s.__notarry_acc_info], dest=rank, tag=2)
+            s.communicator.comm.send(s.__notaries_per_rank, dest=rank, tag=222)
+            s.communicator.comm.send([acc["id"] for acc in s.__val_acc_info], dest=rank, tag=1)
+            s.communicator.comm.send([acc["id"] for acc in s.__notarry_acc_info], dest=rank, tag=2)
 
         # plot_network(s.__peers_in_beacon, s.communicator.rank)
 
-
-    def create_val_account_info(s):
+    def create_accounts_info(s, pool_ids, account_info, ids_per_rank):
         for rank in range(1, s.communicator.nbRanks):
-            interval = range((rank+1)*s.__interval_no_nottaries, (rank+2)*s.__interval_no_nottaries)
-            for id_node in sample(interval, s.__vali_per_rank):
+            pool = range((rank + 1) * pool_ids, (rank + 2) * pool_ids)
+            for id_node in sample(pool, ids_per_rank):
                 account = {"id": id_node,
                            "money": s.__start_money,
                            "shard": rank}
-                s.__val_acc_info.append(account)
-
-    def create_notarry_account_info(s):
-        for rank in range(1, s.communicator.nbRanks):
-            interval = range((rank+1)*s.__interval_notarries, (rank+2)*s.__interval_notarries)
-            for id_node in sample(interval, s.__notarry_per_rank):
-                account = {"id": id_node,
-                           "money": s.__start_money,
-                           "shard": rank}
-                s.__notarry_acc_info.append(account)
+                account_info.append(account)
 
     "ROTACJA WEZLAMI"
     def choose_rotated_notarries(s):
         old_rotated_nodes = []
-        for rank in range(1, s.communicator.nbRanks): # bez beacon chaina
-            new_rotated_nodes = sample([(index, acc['id']) for index, acc in enumerate(s.__notarry_acc_info) if acc["shard"] == rank], s.__nb_notarry_migrates)
+        for rank in range(1, s.communicator.nbRanks):  # bez beacon chaina
+            node_id_pair = [(index, acc['id']) for index, acc in enumerate(s.__notarry_acc_info) if acc["shard"] == rank]
+            new_rotated_nodes = sample(node_id_pair, s.__nb_notarry_migrates)
             if old_rotated_nodes:
                 for node in old_rotated_nodes:
                     s.__notarry_acc_info[node[0]]["shard"] += 1
@@ -71,17 +64,28 @@ class Beacon:
             s.communicator.comm.send([node[1] for node in new_rotated_nodes], dest=rank, tag=3) # wyjdzie jedna lista nodow
 
     def choose_rotated_validators(s):
-        old_rotated_nodes = []
-        for rank in range(1, s.communicator.nbRanks): # bez beacon chaina
-            new_rotated_nodes = sample([(index, acc['id']) for index, acc in enumerate(s.__val_acc_info) if acc["shard"] == rank], s.__nb_val_migrates)
-            if old_rotated_nodes:
-                for node in old_rotated_nodes:
-                    s.__val_acc_info[node[0]]["shard"] += 1
-            old_rotated_nodes = new_rotated_nodes
+        for rank in range(1, s.communicator.nbRanks):  # bez beacon chaina
+            node_id_pair = [(index, acc['id']) for index, acc in enumerate(s.__val_acc_info) if acc["shard"] == rank]
+            rotated_nodes = sample(node_id_pair, s.__nb_val_migrates)
             if rank == (s.communicator.nbRanks - 1):
-                for node in old_rotated_nodes:
+                for node in rotated_nodes:
                     s.__val_acc_info[node[0]]["shard"] = 1
-            s.communicator.comm.send([node[1] for node in new_rotated_nodes], dest=rank, tag=4) # wyjdzie jedna lista nodow
+            else:
+                for node in rotated_nodes:
+                    s.__val_acc_info[node[0]]["shard"] += 1
+            s.communicator.comm.send([node[1] for node in rotated_nodes], dest=rank, tag=4) # wyjdzie jedna lista nodow
+
+    def choose_rotated_nodes(s, acc_info, num_migrates, tag):
+        for rank in range(1, s.communicator.nbRanks):  # bez beacon chaina
+            node_id_pair = [(index, acc['id']) for index, acc in enumerate(acc_info) if acc["shard"] == rank]
+            rotated_nodes = sample(node_id_pair, num_migrates)
+            if rank == (s.communicator.nbRanks - 1):
+                for node in rotated_nodes:
+                    acc_info[node[0]]["shard"] = 1
+            else:
+                for node in rotated_nodes:
+                    acc_info[node[0]]["shard"] += 1
+            s.communicator.comm.send([node[1] for node in rotated_nodes], dest=rank, tag=tag)  # wyjdzie jedna lista nodow
 
     """TRANSAKCJE"""
     def tran_acc_balance(s, transactions):
@@ -134,7 +138,7 @@ class Beacon:
         change_ids = []
         for index, acc in enumerate(s.__val_acc_info):
             if acc['money'] < 0:
-                interval = range(2000, ((s.communicator.nbRanks + 1) * s.__interval_no_nottaries))
+                interval = range(2000, ((s.communicator.nbRanks + 1) * s.__pool_val_ids))
                 old_id = acc['id']
                 new_id = choice(list(set(interval) - {acc['id']} - set(list_id)))
                 s.__val_acc_info[index]['id'] = new_id
@@ -149,7 +153,7 @@ class Beacon:
         change_ids = []
         for index, acc in enumerate(s.__notarry_acc_info):
             if acc['money'] < 0:
-                interval = range(20000, ((s.communicator.nbRanks + 1) * s.__interval_notarries))
+                interval = range(20000, ((s.communicator.nbRanks + 1) * s.__pool_notaries))
                 old_id = acc['id']
                 new_id = choice(list(set(interval) - {acc['id']} - set(list_id)))
                 s.__notarry_acc_info[index]['id'] = new_id
@@ -160,39 +164,6 @@ class Beacon:
             s.communicator.comm.send(change_ids, dest=i, tag=12)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        #
-        #
-        #
-        #
-        #
-        #
         #
         # #Dodaje wszystkim po 20 poniewaz beda palone stawki przy tworzeniu zlych BLOKÓW i nie chce zeby ludzie sie wykosztowali
         # for account in s.val_accounts_info:

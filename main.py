@@ -19,18 +19,19 @@ class Main:
 if __name__ == "__main__":
     main = Main()
     communicator = Communicator()
-    # import pydevd
-    # port_mapping = [38889, 45467, 35827, 40057, 40811, 42295, 34005]
-    # pydevd.settrace('localhost', port=port_mapping[communicator.rank], stdoutToServer=True, stderrToServer=True)
+    import pydevd
+    port_mapping = [35541, 38353, 45983, 39223]
+    pydevd.settrace('localhost', port=port_mapping[communicator.rank], stdoutToServer=True, stderrToServer=True)
 
     if communicator.comm.rank == 0:
         beacon = Beacon()
         beacon.boot_beacon()
+        beacon.send_acc_info()
     #communicator.comm.barrier()
     if communicator.comm.rank != 0:
         validators = Validator()
-      #  notarries = Nottaries()
-    if communicator.rank == 1:
+        notarries = Nottaries()
+    if communicator.rank == 1:  # one rank works as timer. First one, beacouse 0-th is more busy. Needed for examination
         time_list = [0]
         transactions_nb = [0]
         gg = True
