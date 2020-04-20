@@ -2,32 +2,21 @@
 Sharding make blockchain more scalable, by divide whole network to smaller parts. Every one of them behave like single chain of blocks. Every core of processor is responsible for one shard. They are working parallel. One of shards is special, it's called Beacon chain, which coordinate rest of shards. Communication beetwen them is implemented in mpi4py python package.
 
 ## Install dependencies:
-sudo apt-get update -y
-
-sudo apt-get install -y mpich
-
-sudo apt install -y python3-pip
-
-pip3 install wheel
-
-pip3 install mpi4py
-
-pip3 install networkx
-
-pip3 install matplotlib
-
-pip install merkletools
+sudo apt-get update -y <br />
+sudo apt-get install -y mpich <br />
+sudo apt install -y python3-pip <br />
+pip3 install wheel <br />
+pip3 install mpi4py <br />
+pip3 install networkx <br />
+pip3 install matplotlib <br />
+pip install merkletools <br />
 
 # Overviev:
-https://www.mpich.org/about/overview/
-
-https://mpi4py.readthedocs.io/en/stable/overview.html
-
-https://networkx.github.io/
-
-https://matplotlib.org/index.html
-
-https://github.com/Tierion/pymerkletools
+https://www.mpich.org/about/overview/ <br />
+https://mpi4py.readthedocs.io/en/stable/overview.html <br />
+https://networkx.github.io/ <br />
+https://matplotlib.org/index.html <br />
+https://github.com/Tierion/pymerkletools <br />
 
 ## Debug
 https://stackoverflow.com/questions/57519129/how-to-run-python-script-with-mpi4py-using-mpiexec-from-within-pycharm
