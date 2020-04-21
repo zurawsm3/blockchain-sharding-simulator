@@ -1,5 +1,5 @@
 from communicator import Communicator
-from shard import Shard
+from shard_node import ShardNode
 from transaction import Transaction
 from block import Block
 from plot import plot_network
@@ -9,11 +9,10 @@ from time import time, sleep
 import csv
 
 
-class Validator(Shard):
+class Validator(ShardNode):
     def __init__(s):
-        s.communicator = Communicator()
-        super().__init__(1, s.communicator.comm.recv(source=0, tag=111))
-        s.__transaction_per_block = 500               ### 127 transakcji w bloku. tyle wyszlo z danych. daje mniej bo potem beacon wysyla jeszcze innym
+        # super().__init__(tag)
+        super().__init__(1, 111)
         s.__tran_max_pay = 100
         s.__max_stake = 400000
         s._shard_blockchain = [Block(None, None, time(), None, None)]   ##tu moze sie zmieni dla publicznych
@@ -26,9 +25,6 @@ class Validator(Shard):
     def get__all_val_ids(s):
         return s._all_ids
 
-    def get__trans_per_block(s):
-        return s.__transaction_per_block
-
     @property
     def shard_blockchain(s):
         return s._shard_blockchain
@@ -36,7 +32,7 @@ class Validator(Shard):
     """TRANSAKCJE"""
     def send_trans_to_beacon(s, nodes_in_shard, node_ids):
         shard_transactions = []
-        for i in range(s.__transaction_per_block):
+        for i in range(s._shard_blockchain[0].get__trans_per_block()):
             sender = choice(nodes_in_shard)
             receiver = choice(list((set(node_ids) - {sender})))
             amount = choice(range(1, s.__tran_max_pay))
@@ -47,7 +43,6 @@ class Validator(Shard):
     def crate_ramification(s, nodes_in_shard, blockchain):
         ramification = []
         finally_transactions = s.communicator.comm.recv(source=0, tag=7)  # TE TRANSAKCJE SA DOBRE.
-        # print(len(finally_transactions))
         money_in_block = 0
         for tran in finally_transactions:
             money_in_block += tran.amount
@@ -97,23 +92,3 @@ class Validator(Shard):
     def recognized_hider(s, correct_block):
         del s._shard_blockchain[-1]
         s._shard_blockchain.append(correct_block)
-        
-    """receive ids to change"""
-    def change_validators_ids(s, change_ids):  # W SUMIE TO SLABE BO ZAMIENIA WEZLAMI ,ALE TAK NAPRAWDE POWINNO BYC USUWANKO I POTEM DOBIOR WEZLOW TAK JAK NA GORZE ROBILEM, ALE JUZ NIE CHCE MI SIE
-        new_val_peers_in_shard = deepcopy(s._peers_in_shard)
-        for key, val in new_val_peers_in_shard.items():
-            for change in change_ids:
-                for index, vali in enumerate(val):
-                    if vali == change[0]:
-                        s._peers_in_shard[key][index] = change[1]
-        for key in new_val_peers_in_shard:
-            for change in change_ids:
-                if key == change[0]:
-                    s._peers_in_shard[change[1]] = s._peers_in_shard[change[0]]
-        for change in change_ids:
-            if change[0] in s._peers_in_shard.keys():
-                s._peers_in_shard.pop(change[0])
-        for change in change_ids:
-            for index, node in enumerate(s._all_ids):
-                if node == change[0]:
-                    s._all_ids[index] = change[1]

@@ -9,7 +9,8 @@ pip3 install wheel <br />
 pip3 install mpi4py <br />
 pip3 install networkx <br />
 pip3 install matplotlib <br />
-pip install merkletools <br />
+pip3 install merkletools <br />
+sudo apt-get -y install python3-tk <br />
 
 # Overviev:
 https://www.mpich.org/about/overview/ <br />

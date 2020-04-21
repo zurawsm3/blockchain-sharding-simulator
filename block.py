@@ -2,6 +2,7 @@ from merkletools import MerkleTools
 
 class Block:
     def __init__(s, transactions, parent, time, staker, stake):
+        s.__transaction_per_block = 500  ### 127 transakcji w bloku. tyle wyszlo z danych. daje mniej bo potem beacon wysyla jeszcze innym
         s.__transactions = transactions
         s.__time = time
         s.__parent = parent
@@ -12,6 +13,9 @@ class Block:
         s.__block_id = 0
 
     """GETTERY"""
+    def get__trans_per_block(s):
+        return s.__transaction_per_block
+
     def get__parent(s):
         return s.__parent
 
