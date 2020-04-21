@@ -7,35 +7,70 @@ from copy import deepcopy
 class Beacon:
     def __init__(s):
         s.communicator = Communicator()
-        s._pool_vali = 1000
-        s._pool_notaries = 10000
+        s.__pool_vali = 1000
+        s.__lower_limit_vali_id = 2000
+        s.__pool_notaries = 10000
+        s.__lower_limit_notaries_id = 20000
         s.__nodes_per_beacon = 200
-        s.__vali_per_rank = 150         ###w eth mowia ze 150 wezlow wystarczy
+        s.__vali_per_rank = 150
         s.__notaries_per_rank = 20
         s.__beacon_peers = 3
-        s._nb_val_migrates = 1
-        s._nb_notary_migrates = 1
+        s.__nb_val_migrates = 1
+        s.__nb_notary_migrates = 1
         s.__start_money = 100000
-        s._val_acc_info = []
-        s._notary_acc_info = []
+        s.__val_acc_info = []
+        s.__notary_acc_info = []
         s.__peers_in_beacon = {}
 
-    def get__peers_in_beacon(s):
+    @property
+    def pool_vali(s):
+        return s.__pool_vali
+
+    @property
+    def pool_notaries(s):
+        return s.__pool_notaries
+
+    @property
+    def lower_limit_vali_id(s):
+        return s.__lower_limit_vali_id
+
+    @property
+    def lower_limit_notaries_id(s):
+        return s.__lower_limit_notaries_id
+
+    @property
+    def nb_val_migrates(s):
+        return s.__nb_val_migrates
+
+    @property
+    def nb_notary_migrates(s):
+        return s.__nb_notary_migrates
+
+    @property
+    def val_acc_info(s):
+        return s.__val_acc_info
+
+    @property
+    def notary_acc_info(s):
+        return s.__notary_acc_info
+
+    @property
+    def peers_in_beacon(s):
         return s.__peers_in_beacon
 
     def boot_beacon(s):
-        beacon_node_ids = sample(range(s._pool_vali, 2 * s._pool_vali), s.__nodes_per_beacon)
+        beacon_node_ids = sample(range(s.__pool_vali, 2 * s.__pool_vali), s.__nodes_per_beacon)
         for node in beacon_node_ids:
             s.__peers_in_beacon[node] = sample((set(beacon_node_ids)-{node}), s.__beacon_peers)
-        s.create_accounts_info(s._pool_vali, s._val_acc_info, s.__vali_per_rank)
-        s.create_accounts_info(s._pool_notaries, s._notary_acc_info, s.__notaries_per_rank)
+        s.create_accounts_info(s.__pool_vali, s.__val_acc_info, s.__vali_per_rank)
+        s.create_accounts_info(s.__pool_notaries, s.__notary_acc_info, s.__notaries_per_rank)
 
     def send_acc_info(s):
         for rank in range(1, s.communicator.nbRanks):
             s.communicator.comm.send(s.__vali_per_rank, dest=rank, tag=111)
             s.communicator.comm.send(s.__notaries_per_rank, dest=rank, tag=222)
-            s.communicator.comm.send([acc["id"] for acc in s._val_acc_info], dest=rank, tag=1)
-            s.communicator.comm.send([acc["id"] for acc in s._notary_acc_info], dest=rank, tag=2)
+            s.communicator.comm.send([acc["id"] for acc in s.__val_acc_info], dest=rank, tag=1)
+            s.communicator.comm.send([acc["id"] for acc in s.__notary_acc_info], dest=rank, tag=2)
 
     def create_accounts_info(s, pool_ids, account_info, ids_per_rank):
         for rank in range(1, s.communicator.nbRanks):
@@ -67,11 +102,11 @@ class Beacon:
         for index, shard_trans in enumerate(transactions_removed):
             indexes = []
             for ind, trans in enumerate(shard_trans):
-                sacc = next((ind, acc) for ind, acc in enumerate(s._val_acc_info) if acc["id"] == trans.sender_id)
-                racc = next((ind, acc) for ind, acc in enumerate(s._val_acc_info) if acc["id"] == trans.receiving_id)
+                sacc = next((ind, acc) for ind, acc in enumerate(s.__val_acc_info) if acc["id"] == trans.sender_id)
+                racc = next((ind, acc) for ind, acc in enumerate(s.__val_acc_info) if acc["id"] == trans.receiving_id)
                 if trans.amount <= sacc[1]["money"]:
-                    s._val_acc_info[sacc[0]]["money"] -= trans.amount
-                    s._val_acc_info[racc[0]]["money"] += trans.amount
+                    s.__val_acc_info[sacc[0]]["money"] -= trans.amount
+                    s.__val_acc_info[racc[0]]["money"] += trans.amount
                 else:
                     indexes.append(ind)
             for i in indexes[::-1]:
@@ -83,7 +118,7 @@ class Beacon:
         for index, shard_trans in enumerate(transactions):
             for tran in shard_trans:
                 receiving_shard = next(
-                    acc["shard"] for acc in s._val_acc_info if acc["id"] == tran.receiving_id)
+                    acc["shard"] for acc in s.__val_acc_info if acc["id"] == tran.receiving_id)
                 if receiving_shard != index + 1:
                     send_transactions[receiving_shard - 1].append(tran)
         for index, shard_trans in enumerate(send_transactions):
@@ -93,25 +128,25 @@ class Beacon:
         for rank in range(1, s.communicator.nbRanks):
             acc_burned = s.communicator.comm.recv(source=rank, tag=tag)
             if acc_burned != "None":
-                for index, acc in enumerate(s._val_acc_info):
+                for index, acc in enumerate(s.__val_acc_info):
                     if acc_burned[0] == acc['id']:
-                        s._val_acc_info[index]['money'] -= acc_burned[1]
+                        s.__val_acc_info[index]['money'] -= acc_burned[1]
 
     def burn_stake_notarry(s):
         for rank in range(1, s.communicator.nbRanks):
             acc_burned = s.communicator.comm.recv(source=rank, tag=9)
             if acc_burned != "None":
-                for index, acc in enumerate(s._notary_acc_info):
+                for index, acc in enumerate(s.__notary_acc_info):
                     if acc_burned[0] == acc['id']:
-                        s._notary_acc_info[index]['money'] -= acc_burned[1]
+                        s.__notary_acc_info[index]['money'] -= acc_burned[1]
 
     """USUWAC WEZLY KTORE SA NA MINUSIE i wybierac nowe"""
-    def remove_indebted_nodes(s, acc_info, pool, tag):
+    def remove_indebted_nodes(s, acc_info, lower_limit, pool, tag):
         list_id = [acc['id'] for acc in acc_info]
         change_ids = []
         for index, acc in enumerate(acc_info):
             if acc['money'] < 0:
-                interval = range(20000, ((s.communicator.nbRanks + 1) * pool))
+                interval = range(lower_limit, ((s.communicator.nbRanks + 1) * pool))
                 old_id = acc['id']
                 new_id = choice(list(set(interval) - {acc['id']} - set(list_id)))
                 acc_info[index]['id'] = new_id

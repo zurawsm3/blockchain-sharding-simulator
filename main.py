@@ -10,7 +10,7 @@ from plot import plot_network
 
 class Main:
     def __init__(s):
-        s.__sim_time = 10
+        s.__sim_time = 3
 
     def get__sim_time(s):
         return s.__sim_time
@@ -38,9 +38,9 @@ if __name__ == "__main__":
     for tick in range(main.get__sim_time()):
         if communicator.rank == 0:
             if tick % 10 == 0:
-                beacon.choose_rotated_nodes(beacon._notary_acc_info, beacon._nb_notary_migrates, 3)
+                beacon.choose_rotated_nodes(beacon.notary_acc_info, beacon.nb_notary_migrates, 3)
             if tick % 25 == 0:
-                beacon.choose_rotated_nodes(beacon._val_acc_info, beacon._nb_val_migrates, 4)
+                beacon.choose_rotated_nodes(beacon.val_acc_info, beacon.nb_val_migrates, 4)
         communicator.comm.barrier()
         if communicator.rank != 0:
             if tick % 10 == 0:
@@ -48,7 +48,7 @@ if __name__ == "__main__":
                 notarries.shuffle_nodes(l)
             if tick % 25 == 0:
                 validators.shuffle_nodes(communicator.comm.recv(source=0, tag=4))
-            validators.send_trans_to_beacon(list(validators.get__vali_peers_in_shard()), validators.get__all_val_ids())
+            validators.send_trans_to_beacon(list(validators.peers_in_shard), validators.all_ids)
         communicator.comm.barrier()
         if communicator.rank == 0:
             trans_received = []
@@ -58,9 +58,9 @@ if __name__ == "__main__":
             beacon.resend_transaction(trans_after_del)
         communicator.comm.barrier()
         if communicator.rank != 0:
-            ramificat = validators.crate_ramification(validators.get__all_val_ids(), validators.shard_blockchain)
+            ramificat = validators.crate_ramification(validators.all_ids, validators.shard_blockchain)
             correct_block = validators.check_block_time(ramificat)
-            validators.approve_block(correct_block, validators.get__all_val_ids())
+            validators.approve_block(correct_block, validators.all_ids)
             validators.walidate_blockchain(correct_block)
             validators.hide_transactions()
             message = notarries.check_data_availability(validators.shard_blockchain[-1])
@@ -72,24 +72,24 @@ if __name__ == "__main__":
             beacon.burn_stake_bad_commit_availability(8)
             beacon.burn_stake_notarry()
             beacon.burn_stake_bad_commit_availability(10)
-            beacon.remove_indebted_nodes(beacon._val_acc_info, beacon._pool_vali, 11)
-            beacon.remove_indebted_nodes(beacon._notary_acc_info, beacon._pool_notaries, 12)
+            beacon.remove_indebted_nodes(beacon.val_acc_info, beacon.lower_limit_vali_id, beacon.pool_vali, 11)
+            beacon.remove_indebted_nodes(beacon.notary_acc_info, beacon.lower_limit_notaries_id, beacon.pool_notaries, 12)
         communicator.comm.barrier()
         if communicator.rank != 0:
             validators.change_ids(communicator.comm.recv(source=0, tag=11))
             notarries.change_ids(communicator.comm.recv(source=0, tag=12))
-   #          if communicator.rank == 1:
-   #              if gg == True:
-   #                  start_time = time()
-   #                  gg = False
-   #              time_list.append(time()-start_time)
-   #              transactions_nb.append(tick*validators._shard_blockchain[0].get__trans_per_block()*communicator.nbRanks)
+            # if communicator.rank == 1:
+            #     if gg == True:
+                    # start_time = time()
+                    # gg = False
+                # time_list.append(time()-start_time)
+                # transactions_nb.append(tick*validators.shard_blockchain[0].get__trans_per_block()*communicator.nbRanks)
         # communicator.comm.barrier()
     if communicator.rank == 0:
         pass
-        plot_network(beacon.get__peers_in_beacon(), communicator.rank)
+        plot_network(beacon.peers_in_beacon, communicator.rank)
     else:
-        plot_network(validators.get__vali_peers_in_shard(), communicator.rank)
+        plot_network(validators.peers_in_shard, communicator.rank)
         # if communicator.rank == 1:
         #     with open('10.csv', 'a') as fd:
         #         writer = csv.writer(fd)

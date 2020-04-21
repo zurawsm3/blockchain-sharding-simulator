@@ -17,7 +17,7 @@ class Nottaries(ShardNode):
         test_block.create_tree()
         test_nb_leaves = test_block.get__mt().get_leaf_count()
         number_of_leaves = block_to_checked.get__mt().get_leaf_count()
-        staker = choice(list(s._peers_in_shard))
+        staker = choice(list(s.peers_in_shard))
         message = {'notar_staker': staker,
                    'notar_stake': s.__availability_stake}
         hostility = random()

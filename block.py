@@ -1,5 +1,6 @@
 from merkletools import MerkleTools
 
+
 class Block:
     def __init__(s, transactions, parent, time, staker, stake):
         s.__transaction_per_block = 500  ### 127 transakcji w bloku. tyle wyszlo z danych. daje mniej bo potem beacon wysyla jeszcze innym
@@ -12,29 +13,36 @@ class Block:
         s.__mt = MerkleTools(hash_type="md5")
         s.__block_id = 0
 
-    """GETTERY"""
-    def get__trans_per_block(s):
+    @property
+    def trans_per_block(s):
         return s.__transaction_per_block
 
-    def get__parent(s):
+    @property
+    def parent(s):
         return s.__parent
 
-    def get__block_id(s):
+    @property
+    def block_id(s):
         return s.__block_id
 
-    def get__staker(s):
+    @property
+    def staker(s):
         return s.__staker
 
-    def get__stake(s):
+    @property
+    def stake(s):
         return s.__stake
 
-    def get__transactions(s):
+    @property
+    def transactions(s):
         return s.__transactions
 
-    def get__time(s):
+    @property
+    def time(s):
         return s.__time
 
-    def get__mt(s):
+    @property
+    def mt(s):
         return s.__mt
 
     def create_tree(s):
