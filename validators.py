@@ -44,16 +44,17 @@ class Validator(ShardNode):
             block = Block(finally_transactions, blockchain[-1].get__block_id(), time(), staker, stake)
             block.create_tree()
             ramification.append(block)
-            if random() < 0.4:  # randomowo tworzone sa rozgalezienia, czyli nowe bloki.Dobre, sa zle czasy
+            if random() < 0.4:
                 break
         return ramification
 
-    def check_block_time(s, ramification):
+    @staticmethod
+    def check_block_time(ramification):
         early = min([block.get__time() for block in ramification])
         return next(block for block in ramification if block.get__time() == early)
     
     def approve_block(s, correct_block, nodes_in_shard):
-        sleep(1)          # wczesniej bylo 1.5
+        sleep(1)
         hostility = random()
         if hostility < 0.8:
             s.__shard_blockchain.append(correct_block)

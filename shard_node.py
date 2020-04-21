@@ -25,6 +25,7 @@ class ShardNode:
         return s.__all_ids
 
     """ROTACJA WEZLAMI"""
+    # Algoritm include send/receive messages
     def shuffle_nodes(s, rotated_ids):
         # usuwanie perrow poprzez rotowane wezly
         s.main_delete_rotated_ids(rotated_ids)

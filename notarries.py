@@ -15,7 +15,7 @@ class Nottaries(ShardNode):
     def check_data_availability(s, block_to_checked): # tu bedzie sprawdzana transakcja
         test_block = Block(block_to_checked.get__transactions(), None, time(), None, None)
         test_block.create_tree()
-        test_nb_leaves = test_block.get__mt().get_leaf_count()
+        test_nb_leaves = test_block.mt.get_leaf_count()
         number_of_leaves = block_to_checked.get__mt().get_leaf_count()
         staker = choice(list(s.peers_in_shard))
         message = {'notar_staker': staker,
@@ -37,7 +37,7 @@ class Nottaries(ShardNode):
         froud = 'None'
         test_block = Block(block_to_checked.get__transactions(), None, time(), None, None)
         test_block.create_tree()
-        test_nb_leaves = test_block.get__mt().get_leaf_count()
+        test_nb_leaves = test_block.mt.get_leaf_count()
         number_of_leaves = block_to_checked.get__mt().get_leaf_count()
         if test_nb_leaves != number_of_leaves:
             if message['verdict'] == 'incomplete':

@@ -5,6 +5,15 @@ from copy import deepcopy
 
 
 class Beacon:
+    """
+    A class represent beacon chain
+
+    Attributes
+    ----------
+    communicator : Communicator
+    pool_vali : int
+
+    """
     def __init__(s):
         s.communicator = Communicator()
         s.__pool_vali = 1000
