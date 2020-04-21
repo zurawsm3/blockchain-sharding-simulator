@@ -12,7 +12,7 @@ pip3 install matplotlib <br />
 pip3 install merkletools <br />
 sudo apt-get -y install python3-tk <br />
 
-# Overviev:
+# Overview:
 https://www.mpich.org/about/overview/ <br />
 https://mpi4py.readthedocs.io/en/stable/overview.html <br />
 https://networkx.github.io/ <br />
