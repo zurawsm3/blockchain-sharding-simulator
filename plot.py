@@ -26,14 +26,3 @@ def plot_network(peers_shard, rank):
     nx.draw(g, pos, with_labels=True, node_size=1200, node_color='y')
     warnings.resetwarnings()
     plt.show()
-
-# def plot_transaction_shard(time, transactions):
-#     fig = plt.figure()
-#     fig.canvas.set_window_title("przetworzone transakcje w czasie")
-#     ax1 = fig.add_subplot(111)
-#     ax1.set_ylabel('liczba_transakcji')
-#     ax1.set_xlabel('czas')
-#     # plt.plot(time, list(range(10000)))
-#     plt.plot(time, transactions)
-#     plt.legend('4', ncol=1, loc='upper left');
-#     plt.show()

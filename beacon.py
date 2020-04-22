@@ -141,7 +141,7 @@ class Beacon:
 
     def choose_rotated_nodes(s, acc_info, num_migrates, tag):
         old_rotated_nodes = []
-        for rank in range(1, s.communicator.nbRanks):  # bez beacon chaina
+        for rank in range(1, s.communicator.nbRanks):  # without beacon chain
             node_id_pair = [(index, acc['id']) for index, acc in enumerate(acc_info) if acc["shard"] == rank]
             new_rotated_nodes = sample(node_id_pair, num_migrates)
             if old_rotated_nodes:
@@ -151,7 +151,7 @@ class Beacon:
             if rank == (s.communicator.nbRanks - 1):
                 for node in old_rotated_nodes:
                     acc_info[node[0]]["shard"] = 1
-            s.communicator.comm.send([node[1] for node in new_rotated_nodes], dest=rank, tag=tag) # wyjdzie jedna lista nodow
+            s.communicator.comm.send([node[1] for node in new_rotated_nodes], dest=rank, tag=tag) # one node list
 
     def tran_acc_balance(s, transactions):
         transactions_removed = deepcopy(transactions)
@@ -169,7 +169,7 @@ class Beacon:
                 del transactions[index][i]
         return transactions
 
-    def resend_transaction(s, transactions):  # wysylane sa transakcje do shardow, by mogly stworzyc z nich bloki
+    def resend_transaction(s, transactions):  # transaction are send to Shard chain to make block from them
         send_transactions = deepcopy(transactions)
         for index, shard_trans in enumerate(transactions):
             for tran in shard_trans:

@@ -12,7 +12,7 @@ class Nottaries(ShardNode):
         s.__availability_stake = 400
 
     """DOSTEPNOSC DANYCH"""
-    def check_data_availability(s, block_to_checked): # tu bedzie sprawdzana transakcja
+    def check_data_availability(s, block_to_checked): # here will be transaction checked
         test_block = Block(block_to_checked.transactions, None, time(), None, None)
         test_block.create_tree()
         test_nb_leaves = test_block.mt.get_leaf_count()

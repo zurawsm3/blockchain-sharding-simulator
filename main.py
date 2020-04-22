@@ -3,9 +3,6 @@ from validators import Validator
 from notarries import Nottaries
 from communicator import Communicator
 from plot import plot_network
-# from plot import plot_transaction_shard
-# from time import time
-# import csv
 
 
 class Main:
@@ -78,22 +75,8 @@ if __name__ == "__main__":
         if communicator.rank != 0:
             validators.change_ids(communicator.comm.recv(source=0, tag=11))
             notarries.change_ids(communicator.comm.recv(source=0, tag=12))
-            # if communicator.rank == 1:
-            #     if gg == True:
-                    # start_time = time()
-                    # gg = False
-                # time_list.append(time()-start_time)
-                # transactions_nb.append(tick*validators.shard_blockchain[0].get__trans_per_block()*communicator.nbRanks)
-        # communicator.comm.barrier()
     if communicator.rank == 0:
         pass
         plot_network(beacon.peers_in_beacon, communicator.rank)
     else:
         plot_network(validators.peers_in_shard, communicator.rank)
-        # if communicator.rank == 1:
-        #     with open('10.csv', 'a') as fd:
-        #         writer = csv.writer(fd)
-        #         for i in range(len(time_list)):
-        #             writer.writerow([time_list[i], transactions_nb[i]])
-        #     print(time_list[-1])
-            # plot_transaction_shard(time_list,transactions_nb)

@@ -15,7 +15,7 @@ class Validator(ShardNode):
         s.__tran_max_pay = 100
         s.__max_stake = 400000
         s.__shard_blockchain = [Block(None, None, time(), None, None)]
-        # plot_network(s.peers_in_shard, s.communicator.rank)           ### notariusze tego nie maja
+        # plot_network(s.peers_in_shard, s.communicator.rank)
 
     @property
     def shard_blockchain(s):
@@ -34,7 +34,7 @@ class Validator(ShardNode):
     """ZLE UCZYNKI"""
     def crate_ramification(s, nodes_in_shard, blockchain):
         ramification = []
-        finally_transactions = s.communicator.comm.recv(source=0, tag=7)  # TE TRANSAKCJE SA DOBRE.
+        finally_transactions = s.communicator.comm.recv(source=0, tag=7)  # these transactions are good
         money_in_block = 0
         for tran in finally_transactions:
             money_in_block += tran.amount
@@ -69,16 +69,16 @@ class Validator(ShardNode):
             s.__shard_blockchain.append(block)
 
     """AKA RYBAK COS ZROBIC Z 2/3"""
-    def walidate_blockchain(s, correct_block): # Sprawdzany jest ostatni, bo i tak co ture sie sprawdza. I JEST ZAWSZE ich dwa. Albo dobry albo zly
+    def walidate_blockchain(s, correct_block): # the last one is checked, beacuseevery turn everything changes Its' status is only good or not
         fraud = "None"
-        if s.__shard_blockchain[-1].parent is not None: # niepotrzebne. zabezpieczenie przed pierwszym blokiem
+        if s.__shard_blockchain[-1].parent is not None: # unnecesary. First block protected
             if s.__shard_blockchain[-1].parent != s.__shard_blockchain[-2].block_id:
                 fraud = [s.__shard_blockchain[-1].staker, s.__shard_blockchain[-1].stake]
                 del s.__shard_blockchain[-1]
-                s.__shard_blockchain.append(correct_block)  # dodawanie poprawnego
-        s.communicator.comm.send(fraud, dest=0, tag=8)  # none nie mozna wysylac . dzieki temu bedziemy karac
+                s.__shard_blockchain.append(correct_block)  # add corect
+        s.communicator.comm.send(fraud, dest=0, tag=8)  # we can't send None
 
-    def hide_transactions(s):  # usuwa czesc transakcji. Dokladnie jedna
+    def hide_transactions(s):  # remove part of transactions. One exactly
         [index] = sample(range(len(s.__shard_blockchain[-1].transactions)), k=1)
         del s.__shard_blockchain[-1].transactions[index]
 
