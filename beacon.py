@@ -139,7 +139,6 @@ class Beacon:
             s.communicator.comm.send([acc["id"] for acc in s.__val_acc_info], dest=rank, tag=1)
             s.communicator.comm.send([acc["id"] for acc in s.__notary_acc_info], dest=rank, tag=2)
 
-    "ROTACJA WEZLAMI"
     def choose_rotated_nodes(s, acc_info, num_migrates, tag):
         old_rotated_nodes = []
         for rank in range(1, s.communicator.nbRanks):  # bez beacon chaina
@@ -154,7 +153,6 @@ class Beacon:
                     acc_info[node[0]]["shard"] = 1
             s.communicator.comm.send([node[1] for node in new_rotated_nodes], dest=rank, tag=tag) # wyjdzie jedna lista nodow
 
-    """TRANSAKCJE"""
     def tran_acc_balance(s, transactions):
         transactions_removed = deepcopy(transactions)
         for index, shard_trans in enumerate(transactions_removed):
@@ -198,7 +196,6 @@ class Beacon:
                     if acc_burned[0] == acc['id']:
                         s.__notary_acc_info[index]['money'] -= acc_burned[1]
 
-    """USUWAC WEZLY KTORE SA NA MINUSIE i wybierac nowe"""
     def remove_indebted_nodes(s, acc_info, lower_limit, pool, tag):
         list_id = [acc['id'] for acc in acc_info]
         change_ids = []
