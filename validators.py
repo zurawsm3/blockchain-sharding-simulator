@@ -41,7 +41,7 @@ class Validator(ShardNode):
         while True:
             staker = choice(nodes_in_shard)
             stake = choice(list(range(money_in_block, s.__max_stake + 1)))
-            block = Block(finally_transactions, blockchain[-1].get__block_id(), time(), staker, stake)
+            block = Block(finally_transactions, blockchain[-1].block_id, time(), staker, stake)
             block.create_tree()
             ramification.append(block)
             if random() < 0.4:
@@ -50,8 +50,8 @@ class Validator(ShardNode):
 
     @staticmethod
     def check_block_time(ramification):
-        early = min([block.get__time() for block in ramification])
-        return next(block for block in ramification if block.get__time() == early)
+        early = min([block.time for block in ramification])
+        return next(block for block in ramification if block.time == early)
     
     def approve_block(s, correct_block, nodes_in_shard):
         sleep(1)
@@ -60,11 +60,11 @@ class Validator(ShardNode):
             s.__shard_blockchain.append(correct_block)
         else:
             money_in_block = 0
-            for tran in correct_block.get__transactions():
+            for tran in correct_block.transactions:
                 money_in_block += tran.amount
             staker = choice(nodes_in_shard)
             stake = choice(list(range(money_in_block, s.__max_stake + 1)))
-            block = Block(correct_block.get__transactions(), hash("whatever"), time(), staker, stake)
+            block = Block(correct_block.transactions, hash("whatever"), time(), staker, stake)
             block.create_tree()
             s.__shard_blockchain.append(block)
 

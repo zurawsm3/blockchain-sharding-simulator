@@ -13,10 +13,10 @@ class Nottaries(ShardNode):
 
     """DOSTEPNOSC DANYCH"""
     def check_data_availability(s, block_to_checked): # tu bedzie sprawdzana transakcja
-        test_block = Block(block_to_checked.get__transactions(), None, time(), None, None)
+        test_block = Block(block_to_checked.transactions, None, time(), None, None)
         test_block.create_tree()
         test_nb_leaves = test_block.mt.get_leaf_count()
-        number_of_leaves = block_to_checked.get__mt().get_leaf_count()
+        number_of_leaves = block_to_checked.mt.get_leaf_count()
         staker = choice(list(s.peers_in_shard))
         message = {'notar_staker': staker,
                    'notar_stake': s.__availability_stake}
@@ -35,19 +35,19 @@ class Nottaries(ShardNode):
 
     def walidate_challenge(s, message, block_to_checked):
         froud = 'None'
-        test_block = Block(block_to_checked.get__transactions(), None, time(), None, None)
+        test_block = Block(block_to_checked.transactions, None, time(), None, None)
         test_block.create_tree()
         test_nb_leaves = test_block.mt.get_leaf_count()
-        number_of_leaves = block_to_checked.get__mt().get_leaf_count()
+        number_of_leaves = block_to_checked.mt.get_leaf_count()
         if test_nb_leaves != number_of_leaves:
             if message['verdict'] == 'incomplete':
                 s.communicator.comm.send(froud, dest=0, tag=9)
-                s.communicator.comm.send([block_to_checked.get__staker(), block_to_checked.get__stake()], dest=0, tag=10)
+                s.communicator.comm.send([block_to_checked.staker, block_to_checked.stake], dest=0, tag=10)
                 return True
             else:
                 froud = [message['notar_staker'], message['notar_stake']]
                 s.communicator.comm.send(froud, dest=0, tag=9)
-                s.communicator.comm.send([block_to_checked.get__staker(), block_to_checked.get__stake()], dest=0, tag=10)
+                s.communicator.comm.send([block_to_checked.staker, block_to_checked.stake], dest=0, tag=10)
                 return True
         else:
             if message['verdict'] == 'complete':

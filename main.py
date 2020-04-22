@@ -10,7 +10,7 @@ from plot import plot_network
 
 class Main:
     def __init__(s):
-        s.__sim_time = 3
+        s.__sim_time = 2
 
     def get__sim_time(s):
         return s.__sim_time
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     main = Main()
     communicator = Communicator()
     # import pydevd
-    # port_mapping = [37451, 42313, 41653, 42011]
+    # port_mapping = [40395, 33801, 38929, 40045]
     # pydevd.settrace('localhost', port=port_mapping[communicator.rank], stdoutToServer=True, stderrToServer=True)
 
     if communicator.comm.rank == 0:

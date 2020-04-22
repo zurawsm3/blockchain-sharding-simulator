@@ -6,12 +6,38 @@ from copy import deepcopy
 
 class Beacon:
     """
-    A class represent beacon chain
+    A class represent Beacon chain
 
     Attributes
     ----------
-    communicator : Communicator
-    pool_vali : int
+    communicator : Communicator class instance
+        Beacon chain communicates with Shards chain
+    __pool_vali : int
+        Number of available ids for Validators
+    __lower_limit_vali_id : int
+        Lower limit of Validators ids
+    __pool_notaries : int
+        Number of available ids for Notarries
+    __lower_limit_notaries_id : int
+        Lower limit of Notaries ids
+    __nodes_per_beacon : int
+        Number of Nodes in Beacon chain
+    __vali_per_rank : int
+        Number of Validators in Shard chain
+    __notaries_per_rank : int
+        Number of Notaries in Shard chain
+    __beacon_peers : int
+        Number of connected nodes to another node
+    __nb_val_migrates : int
+        Number of rotated Validators
+    __nb_notary_migrates : int
+        Number of rotated Notaries
+    __start_money : int
+        Number of tokens had by Node in Shard chain
+    __val_acc_info : list
+
+    __notary_acc_info : list
+    __peers_in_beacon : set
 
     """
     def __init__(s):
