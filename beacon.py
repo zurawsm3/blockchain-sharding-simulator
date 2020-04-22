@@ -35,11 +35,34 @@ class Beacon:
     __start_money : int
         Number of tokens had by Node in Shard chain
     __val_acc_info : list
-
+        List of dictionaries. Dictionary of id, money and shard Validators
     __notary_acc_info : list
-    __peers_in_beacon : set
+        List of dictionaries. Dictionary of id, money and shard Notaries
+    __peers_in_beacon : dictionary
+        Connections of Nodes in Beacon chain
 
+    Methods
+    -------
+    boot_beacon()
+        Create Beacon chain initial infastructure
+    create_accounts_info(pool_ids, account_info, ids_per_rank)
+        Create initial info about id, money and Shard of Shard nodes
+    send_acc_info()
+        Sends initial info about Nodes to Shard chains
+    choose_rotated_nodes(acc_info, num_migrates, tag)
+        Randomly choose nodes which will be move to another Shard chain
+    tran_acc_balance(transactions)
+        Modify money account status based on transactions made
+    resend_transaction(transactions)
+        Resend transactions to Shard chains. They will proceed with transactions
+    burn_stake_bad_commit_availability(tag)
+        Delete Validator's money who made block unavailable
+    burn_stake_notarry()
+        Delete Notary's money who made the wrong decision
+    remove_indebted_nodes(acc_info, lower_limit, pool, tag)
+        Get rid of nodes in debt
     """
+
     def __init__(s):
         s.communicator = Communicator()
         s.__pool_vali = 1000
@@ -100,13 +123,6 @@ class Beacon:
         s.create_accounts_info(s.__pool_vali, s.__val_acc_info, s.__vali_per_rank)
         s.create_accounts_info(s.__pool_notaries, s.__notary_acc_info, s.__notaries_per_rank)
 
-    def send_acc_info(s):
-        for rank in range(1, s.communicator.nbRanks):
-            s.communicator.comm.send(s.__vali_per_rank, dest=rank, tag=111)
-            s.communicator.comm.send(s.__notaries_per_rank, dest=rank, tag=222)
-            s.communicator.comm.send([acc["id"] for acc in s.__val_acc_info], dest=rank, tag=1)
-            s.communicator.comm.send([acc["id"] for acc in s.__notary_acc_info], dest=rank, tag=2)
-
     def create_accounts_info(s, pool_ids, account_info, ids_per_rank):
         for rank in range(1, s.communicator.nbRanks):
             pool = range((rank + 1) * pool_ids, (rank + 2) * pool_ids)
@@ -115,6 +131,13 @@ class Beacon:
                            "money": s.__start_money,
                            "shard": rank}
                 account_info.append(account)
+
+    def send_acc_info(s):
+        for rank in range(1, s.communicator.nbRanks):
+            s.communicator.comm.send(s.__vali_per_rank, dest=rank, tag=111)
+            s.communicator.comm.send(s.__notaries_per_rank, dest=rank, tag=222)
+            s.communicator.comm.send([acc["id"] for acc in s.__val_acc_info], dest=rank, tag=1)
+            s.communicator.comm.send([acc["id"] for acc in s.__notary_acc_info], dest=rank, tag=2)
 
     "ROTACJA WEZLAMI"
     def choose_rotated_nodes(s, acc_info, num_migrates, tag):
