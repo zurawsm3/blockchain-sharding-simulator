@@ -22,7 +22,7 @@ https://github.com/Tierion/pymerkletools <br />
 ## Debug
 https://stackoverflow.com/questions/57519129/how-to-run-python-script-with-mpi4py-using-mpiexec-from-within-pycharm
 
-## Przykladowe uruchomienie programu
+## Program launch example
 
-> mpirun -np 4 python3.6 ./main.py
+> mpirun -np 4 python3 ./main.py
 
