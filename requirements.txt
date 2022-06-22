@@ -5,7 +5,7 @@ matplotlib==3.1.1
 merkletools==1.0.3
 mpi4py==3.0.3
 networkx==2.4
-numpy==1.17.4
+numpy==1.22.0
 pydevd==1.8.0
 pyparsing==2.4.5
 pysha3==1.0.2
